@@ -22,6 +22,10 @@
 			{
 				"name": "MAINTENANCE",
 				"type": "nvarchar"
+			},
+			{
+				"name": "SUBCAT",
+				"type": "nvarchar"
 			}
 		],
 		"typeProperties": {
