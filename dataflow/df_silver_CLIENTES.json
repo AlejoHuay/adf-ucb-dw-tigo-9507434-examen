@@ -12,14 +12,14 @@
 						"referenceName": "ds_sql_BRONZE_CLIENTES",
 						"type": "DatasetReference"
 					},
-					"name": "bronzeClientes"
+					"name": "Clientes"
 				},
 				{
 					"dataset": {
 						"referenceName": "ds_sql_BRONZE_CLIENTES_LOCATION",
 						"type": "DatasetReference"
 					},
-					"name": "bronzeClientesLocation"
+					"name": "ClientesLocation"
 				},
 				{
 					"dataset": {
@@ -30,17 +30,7 @@
 				}
 			],
 			"sinks": [],
-			"transformations": [
-				{
-					"name": "derivedColumn1"
-				},
-				{
-					"name": "select1"
-				},
-				{
-					"name": "join1"
-				}
-			],
+			"transformations": [],
 			"scriptLines": [
 				"source(output(",
 				"          CST_ID as string,",
@@ -53,7 +43,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> bronzeClientes",
+				"     format: 'table') ~> Clientes",
 				"source(output(",
 				"          CID as string,",
 				"          CNTRY as string",
@@ -61,7 +51,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> bronzeClientesLocation",
+				"     format: 'table') ~> ClientesLocation",
 				"source(output(",
 				"          CID as string,",
 				"          BDATE as string,",
@@ -70,19 +60,7 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> bronzeClientesGen",
-				"bronzeClientesLocation derive(CST_ID = substring(CID, 8, 5)) ~> derivedColumn1",
-				"derivedColumn1 select(mapColumn(",
-				"          CNTRY,",
-				"          CST_ID",
-				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1",
-				"select1, bronzeClientes join(select1@CST_ID == bronzeClientes@CST_ID,",
-				"     joinType:'right',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1"
+				"     format: 'table') ~> bronzeClientesGen"
 			]
 		}
 	}
