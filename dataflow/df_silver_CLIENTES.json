@@ -65,6 +65,9 @@
 				},
 				{
 					"name": "QuitamosRenombranosColumnasDuplicadas"
+				},
+				{
+					"name": "castTiposParaSink"
 				}
 			],
 			"scriptLines": [
@@ -133,7 +136,19 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> QuitamosRenombranosColumnasDuplicadas",
-				"eliminarNulos sink(allowSchemaDrift: true,",
+				"eliminarNulos cast(output(",
+				"          CST_FIRSTNAME as string,",
+				"          CST_LASTNAME as string,",
+				"          CST_MARITAL_STATUS as string,",
+				"          CST_GNRD as string,",
+				"          CNTRY as string,",
+				"          CST_KEY as string,",
+				"          BDATE as date 'yyyy-MM-dd',",
+				"          GEN as string,",
+				"          CST_ID as integer",
+				"     ),",
+				"     errors: true) ~> castTiposParaSink",
+				"castTiposParaSink sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          CST_ID as integer,",
