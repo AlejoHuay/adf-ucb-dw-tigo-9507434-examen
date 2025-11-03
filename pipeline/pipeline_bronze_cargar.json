@@ -1,5 +1,5 @@
 {
-	"name": "pipeline_bronze",
+	"name": "pipeline_bronze_cargar",
 	"properties": {
 		"activities": [
 			{
