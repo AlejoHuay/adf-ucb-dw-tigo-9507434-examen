@@ -36,9 +36,6 @@
 					"name": "LimpiezayExtraccionID"
 				},
 				{
-					"name": "QuitarNulos"
-				},
-				{
 					"name": "LimpiezaGeneral"
 				},
 				{
@@ -46,6 +43,12 @@
 				},
 				{
 					"name": "ColumnasFinales"
+				},
+				{
+					"name": "quitarNulos"
+				},
+				{
+					"name": "IDaINTEGER"
 				}
 			],
 			"scriptLines": [
@@ -74,13 +77,11 @@
 				"          PRD_NM = trim(PRD_NM),",
 				"          PRD_LINE = upper(trim(PRD_LINE)),",
 				"          PRD_KEY_BASE = substring(PRD_KEY, 1, 5),",
-				"          PRD_COST = iif(isNull(PRD_COST) || trim(toString(PRD_COST)) == '', '0', trim(toString(PRD_COST)))\r",
-				") ~> LimpiezayExtraccionID",
-				"LimpiezayExtraccionID filter(!(isNull(PRD_KEY_BASE) || isNull(PRD_ID) || isNull(PRD_NM))) ~> QuitarNulos",
-				"ProdCatMant derive(ID = upper(trim(ID)),",
+				"          PRD_COST = trim(toString(PRD_COST))) ~> LimpiezayExtraccionID",
+				"ProdCatMant derive(ID = replace(upper(trim(toString(ID))), '_', '-'),",
 				"          CAT = trim(CAT),",
 				"          MAINTENANCE = trim(MAINTENANCE)) ~> LimpiezaGeneral",
-				"QuitarNulos, LimpiezaGeneral join(PRD_KEY_BASE == ID,",
+				"IDaINTEGER, LimpiezaGeneral join(PRD_KEY_BASE == ID,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
@@ -96,6 +97,11 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> ColumnasFinales",
+				"LimpiezayExtraccionID filter(!(isNull(PRD_KEY_BASE) || isNull(PRD_ID) || isNull(PRD_NM) || isNull(PRD_COST))) ~> quitarNulos",
+				"quitarNulos cast(output(",
+				"          PRD_ID as integer",
+				"     ),",
+				"     errors: true) ~> IDaINTEGER",
 				"ColumnasFinales sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

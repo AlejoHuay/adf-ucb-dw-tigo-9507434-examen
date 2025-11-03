@@ -1,0 +1,90 @@
+{
+	"name": "df_silver_VENTAS",
+	"properties": {
+		"folder": {
+			"name": "SILVER"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_BRONZE_DETALLE_VENTA",
+						"type": "DatasetReference"
+					},
+					"name": "detalleVenta"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_DETALLES_VENTA",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Limpieza"
+				},
+				{
+					"name": "quitarNulos"
+				},
+				{
+					"name": "convertirTipos"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          SLS_ORD_NUM as string,",
+				"          SLS_PRD_KEY as string,",
+				"          SLS_CUST_ID as string,",
+				"          SLS_ORDER_DT as string,",
+				"          SLS_SHIP_DT as string,",
+				"          SLS_SALES as string,",
+				"          SLS_QUANTITY as string,",
+				"          SLS_PRICE as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> detalleVenta",
+				"detalleVenta derive(SLS_ORD_NUM = upper(trim(toString(SLS_ORD_NUM))),",
+				"          SLS_PRD_KEY = upper(trim(toString(SLS_PRD_KEY))),",
+				"          SLS_CUST_ID = trim(toString(SLS_CUST_ID)),",
+				"          SLS_ORDER_DT = trim(toString(SLS_ORDER_DT)),",
+				"          SLS_SHIP_DT = trim(toString(SLS_SHIP_DT))) ~> Limpieza",
+				"Limpieza filter(!isNull(SLS_ORD_NUM) && trim(SLS_ORD_NUM) != '' &&\r",
+				"!isNull(SLS_PRD_KEY) && trim(SLS_PRD_KEY) != '' &&\r",
+				"!isNull(SLS_CUST_ID) && trim(SLS_CUST_ID) != '') ~> quitarNulos",
+				"quitarNulos cast(output(",
+				"          SLS_SALES as integer,",
+				"          SLS_QUANTITY as integer,",
+				"          SLS_PRICE as integer",
+				"     ),",
+				"     errors: true) ~> convertirTipos",
+				"convertirTipos sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          SLS_ORD_NUM as string,",
+				"          SLS_PRD_KEY as string,",
+				"          SLS_CUST_ID as string,",
+				"          SLS_ORDER_DT as string,",
+				"          SLS_SHIP_DT as string,",
+				"          SLS_SALES as integer,",
+				"          SLS_QUANTITY as integer,",
+				"          SLS_PRICE as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
+			]
+		}
+	}
+}
